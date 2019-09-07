@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 """
+Copyright (c) 2019 Lee Bennett
+See the LICENSE file for license rights and limitations (MIT).
+
 This script analyzes an Agentry event.log file.
 The main goal is to determine the number of occurances of known error messages.
 Key features implemented include:
