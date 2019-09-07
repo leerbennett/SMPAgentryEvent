@@ -47,9 +47,10 @@ showUsers = True
 start = None
 end = None
 onlyFirst = False
-eventPatternFile = "TopErrors.csv"
+eventPatternFile = "EventPatterns.csv"
 showDetail = False
 typeFilter = None
+debug = False
 
 def line_regex():
     return re.compile(r"(\d{2}[-/]\d{2}[-/]\d{4}\s+\d{2}:\d{2}:\d{2}),\s*(\d+),\s*(\d+),\s*(\d+),\s*Thr\s*(\d+),\s*(.*)")
@@ -108,11 +109,10 @@ class EventPattern:
             csv_reader = csv.DictReader(csv_file)
             line_count = 0
             for row in csv_reader:
-                print(row)
+                if debug:
+                    print(row)
                 EventPattern(row['Name'], row['MessageRegEx'], row['parent'])
                 line_count +=1
-##            for p in EventPattern._patterns:
-##                print(p.name)
         
     @staticmethod
     def mainMatchEvent(event):
@@ -225,7 +225,8 @@ def mainLoop(files = ['events.log'], users=[]):
     regex = None
     regex = line_regex()
     for fileName in files:
-        print ("********* Processing file {0}\n".format(fileName))
+        if debug:
+            print ("********* Processing file {0}\n".format(fileName))
         with open(fileName, "r") as in_file:
             # Loop over each log line
             for line in in_file:
@@ -242,15 +243,16 @@ def mainLoop(files = ['events.log'], users=[]):
                         print('Matching line skipped: {0}'.format(line))
                     else:
                         EventPattern.mainMatchEvent(e)
-    print ('******************** Finished processing all files ***********************************')
-    print ("Lines found {0}".format(lines))
-    print ("Matches found {0}".format(matches))
+    if debug:
+        print ('******************** Finished processing all files ***********************************')
+        print ("Lines found {0}".format(lines))
+        print ("Matches found {0}".format(matches))
 
     print ("{0}\n".format(store))
     EventPattern.printResults()
 
 def myMain(argv):
-    global showUsers, start, end, onlyFirst, eventPatternFile, showDetail, typeFilter
+    global showUsers, start, end, onlyFirst, eventPatternFile, showDetail, typeFilter, debug
 #    if len(argv) < 2:
     if len(argv) < 0:
         print ("Need to provide a space separated list of files (which all include a .) and (optionally) users (which don't include a .)")
@@ -259,11 +261,14 @@ def myMain(argv):
         files = []
         users = []
         for arg in argv[1:]:
-            print(arg)
+            if debug:
+                print(arg)
             if start == True:
                 start = arg
             elif end == True:
                 end = arg
+            elif arg == '-debug':
+                debug = True    
             elif arg == '-error0':
                 typeFilter = 0
             elif arg == '-error1':
@@ -294,7 +299,8 @@ def myMain(argv):
             #print ("Need to specify at least one event file to process")
             #return
         else:
-            print(files)
+            if debug:
+                print(files)
             mainLoop(files, users)
 
 if __name__ == '__main__':
