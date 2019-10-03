@@ -5,16 +5,17 @@ See the LICENSE file for license rights and limitations (MIT).
 
 This script analyzes an Agentry event.log file.
 The main goal is to determine the number of occurances of known error messages.
-Key features implemented include:
 
+Key features implemented include:
+* When not showing all details, hide any groups with leading underscore in name
+* When not showing all details, Hide all output for errors that don't occur.
 
 Current Limitations/future improvment ideas
-* Support new Error messaging format implemented in 19.2
+* 
+* Show error descriptions in more user oriented way.
 * Show Error detail level
 * Report on errors by category, e.g. Locked
 * Show # of sub errors and # without more detailed break down.
-* -debug command line to filter out script's development output
-* allow processing of multiple files at the same time.
 * Output results to a file
 * Command line switches to only consider entries within a specified time period.
 * 
@@ -160,13 +161,16 @@ class EventPattern:
             print(p)
             
     def __str__(self):
-        ret = " {1:4d}x {0} - {2}\n".format(self.name, len(self.events), self.regEx.pattern)
+        occurances = len(self.events)
+        if occurances == 0 and not showDetail:
+            return("")      
+        ret = " {1:4d}x {0} - {2}\n".format(self.name, occurances, self.regEx.pattern)
         if self.groupNames != None:
             i=0
             for n in self.groupNames:
                 if len(self.groupNames) ==0:
                     continue
-                if n == 'errorDetail' and not showDetail:
+                if n[0] == '_' and not showDetail:
                     continue
                 numValues = len((self.groupValues[i]))
                 values = ''
