@@ -152,7 +152,7 @@ class EventPattern:
         self.events.append(event)
         i = 0
         for n in self.groupNames:
-            self.groupValues[i].add(match.group(i+1))
+            self.groupValues[i].add(match.group(n))
             i+=1
             
     @staticmethod
@@ -164,18 +164,17 @@ class EventPattern:
         occurances = len(self.events)
         if occurances == 0 and not showDetail:
             return("")      
-        ret = " {1:4d}x {0} - {2}\n".format(self.name, occurances, self.regEx.pattern)
+        ret = "*** {1:4d}x {0} - {2}\n".format(self.name, occurances, self.regEx.pattern)
         if self.groupNames != None:
             i=0
             for n in self.groupNames:
-                if len(self.groupNames) ==0:
-                    continue
                 if n[0] == '_' and not showDetail:
                     continue
                 numValues = len((self.groupValues[i]))
-                values = ''
                 if numValues > 0:
                     values = ', '.join(self.groupValues[i])
+                else:
+                    values = ''
                 ret +=  "  {0} ({2}): {1}\n".format(n, values, numValues)
                 i+=1
 
@@ -295,7 +294,7 @@ def myMain(argv):
                 else:
                     files.append(glob.glob(arg))
         if eventPatternFile == None:
-            print ("Need to specify an EventPattern.csv file")
+            print ("Need to specify an EventPatterns.csv file")
             return
         elif len(files) < 1:
             files.append('events.log')
