@@ -150,10 +150,11 @@ class EventPattern:
     
     def addEvent(self, event, match):
         self.events.append(event)
-        i = 0
-        for n in self.groupNames:
-            self.groupValues[i].add(match.group(n))
-            i+=1
+        for ng in match.groupdict():
+            index = self.groupNames.index(ng)
+            value = match.group(ng)
+            if value != None:
+                self.groupValues[index].add(match.group(ng))
             
     @staticmethod
     def printResults():
@@ -162,7 +163,7 @@ class EventPattern:
             
     def __str__(self):
         occurances = len(self.events)
-        if occurances == 0 and not showDetail:
+        if occurances == 0 and not showDetail and len(self.subPatterns) == 0:
             return("")      
         ret = "*** {1:4d}x {0} - {2}\n".format(self.name, occurances, self.regEx.pattern)
         if self.groupNames != None:
