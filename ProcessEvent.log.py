@@ -153,8 +153,9 @@ class EventPattern:
         for ng in match.groupdict():
             index = self.groupNames.index(ng)
             value = match.group(ng)
-            if value != None:
-                self.groupValues[index].add(match.group(ng))
+            if value == None:
+                value = "-None-"
+            self.groupValues[index].add(value)
             
     @staticmethod
     def printResults():
