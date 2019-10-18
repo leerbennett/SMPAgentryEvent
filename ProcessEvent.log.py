@@ -168,17 +168,16 @@ class EventPattern:
             return("")      
         ret = "*** {1:4d}x {0} - {2}\n".format(self.name, occurances, self.regEx.pattern)
         if self.groupNames != None:
-            i=0
             for n in self.groupNames:
                 if n[0] == '_' and not showDetail:
                     continue
-                numValues = len((self.groupValues[i]))
+                index = self.groupNames.index(n)
+                numValues = len((self.groupValues[index]))
                 if numValues > 0:
-                    values = ', '.join(self.groupValues[i])
+                    values = ', '.join(self.groupValues[index])
                 else:
                     values = ''
                 ret +=  "  {0} ({2}): {1}\n".format(n, values, numValues)
-                i+=1
 
         for p in self.subPatterns:
             ret += p.__str__()
