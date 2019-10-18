@@ -52,6 +52,7 @@ eventPatternFile = "EventPatterns.csv"
 showDetail = False
 typeFilter = None
 debug = False
+hideValues = False
 
 def line_regex():
     return re.compile(r"(\d{2}[-/]\d{2}[-/]\d{4}\s+\d{2}:\d{2}:\d{2}),\s*(\d+),\s*(\d+),\s*(\d+),\s*Thr\s*(\d+),\s*(.*)")
@@ -63,8 +64,8 @@ class EventPattern:
         self.name = name
         self.regEx = re.compile(regEx)
         self.userError = userError
-        self.recoveryCost = recoveryCost
-        self.repairCost = repairCost
+        self.recoveryCost = int(recoveryCost)
+        self.repairCost = int(repairCost)
 
         self.groupNames = []
         self.groupValues = []
@@ -169,12 +170,12 @@ class EventPattern:
         occurances = len(self.events)
         if occurances == 0 and not showDetail and len(self.subPatterns) == 0:
             return("")
-        if len(self.userError) > 0:
+        description = self.regEx.pattern
+        if not debug and len(self.userError) > 0:
             description = self.userError
-        else:
-            description = self.regEx.pattern
-        ret = "*** {1:4d}x {0} - {2}\n".format(self.name, occurances, description)
-        if self.groupNames != None:
+        impact = occurances * self.recoveryCost
+        ret = "*** {1:4d}x ${3:7d} {0} - {2}\n".format(self.name, occurances, description, impact)
+        if not hideValues and self.groupNames != None:
             for n in self.groupNames:
                 if n[0] == '_' and not showDetail:
                     continue
@@ -263,7 +264,7 @@ def mainLoop(files = ['events.log'], users=[]):
     EventPattern.printResults()
 
 def myMain(argv):
-    global showUsers, start, end, onlyFirst, eventPatternFile, showDetail, typeFilter, debug
+    global showUsers, start, end, onlyFirst, eventPatternFile, showDetail, typeFilter, debug, hideValues
 #    if len(argv) < 2:
     if len(argv) < 0:
         print ("Need to provide a space separated list of files (which all include a .) and (optionally) users (which don't include a .)")
@@ -287,7 +288,9 @@ def myMain(argv):
             elif arg == '-onlyFirst':
                 onlyFirst = True
             elif arg == '-showDetail':
-                showDetail = True    
+                showDetail = True
+            elif arg == '-hideValues':
+                hideValues = True    
             elif arg == '-start':
                 start = True
             elif arg == '-end':
