@@ -58,10 +58,13 @@ def line_regex():
 
 class EventPattern:
     _patterns = []
-    def __init__(self, name, regEx, parent):
+    def __init__(self, name, regEx, parent, userError, recoveryCost, repairCost):
         self.patternId = (name)
         self.name = name
         self.regEx = re.compile(regEx)
+        self.userError = userError
+        self.recoveryCost = recoveryCost
+        self.repairCost = repairCost
 
         self.groupNames = []
         self.groupValues = []
@@ -112,7 +115,7 @@ class EventPattern:
             for row in csv_reader:
                 if debug:
                     print(row)
-                EventPattern(row['Name'], row['MessageRegEx'], row['parent'])
+                EventPattern(row['Name'], row['MessageRegEx'], row['parent'], row['UserError'], row['RecoveryCost'], row['RepairCost'])
                 line_count +=1
         
     @staticmethod
@@ -165,8 +168,12 @@ class EventPattern:
     def __str__(self):
         occurances = len(self.events)
         if occurances == 0 and not showDetail and len(self.subPatterns) == 0:
-            return("")      
-        ret = "*** {1:4d}x {0} - {2}\n".format(self.name, occurances, self.regEx.pattern)
+            return("")
+        if len(self.userError) > 0:
+            description = self.userError
+        else:
+            description = self.regEx.pattern
+        ret = "*** {1:4d}x {0} - {2}\n".format(self.name, occurances, description)
         if self.groupNames != None:
             for n in self.groupNames:
                 if n[0] == '_' and not showDetail:
