@@ -59,13 +59,11 @@ def line_regex():
 
 class EventPattern:
     _patterns = []
-    def __init__(self, name, regEx, parent, userError, recoveryCost, repairCost):
+    def __init__(self, name, regEx, parent, userError):
         self.patternId = (name)
         self.name = name
         self.regEx = re.compile(regEx)
         self.userError = userError
-        self.recoveryCost = int(recoveryCost)
-        self.repairCost = int(repairCost)
 
         self.groupNames = []
         self.groupValues = []
@@ -116,7 +114,7 @@ class EventPattern:
             for row in csv_reader:
                 if debug:
                     print(row)
-                EventPattern(row['Name'], row['MessageRegEx'], row['parent'], row['UserError'], row['RecoveryCost'], row['RepairCost'])
+                EventPattern(row['Name'], row['MessageRegEx'], row['parent'], row['UserError'])
                 line_count +=1
         
     @staticmethod
@@ -173,22 +171,24 @@ class EventPattern:
         description = self.regEx.pattern
         if not debug and len(self.userError) > 0:
             description = self.userError
-        impact = occurances * self.recoveryCost
-        ret = "*** {1:4d}x ${3:7d} {0} - {2}\n".format(self.name, occurances, description, impact)
-        if not hideValues and self.groupNames != None:
-            for n in self.groupNames:
-                if n[0] == '_' and not showDetail:
-                    continue
-                index = self.groupNames.index(n)
-                numValues = len((self.groupValues[index]))
-                if numValues > 0:
-                    values = ', '.join(self.groupValues[index])
-                else:
-                    values = ''
-                ret +=  "  {0} ({2}): {1}\n".format(n, values, numValues)
+        if hideValues:
+            ret = "{1:4d}, {0}, \"{2}\"\n".format(self.name, occurances, description)
+        else:
+            ret = "*** {1:4d}x {0} - {2}\n".format(self.name, occurances, description)
+            if self.groupNames != None:
+                for n in self.groupNames:
+                    if n[0] == '_' and not showDetail:
+                        continue
+                    index = self.groupNames.index(n)
+                    numValues = len((self.groupValues[index]))
+                    if numValues > 0:
+                        values = ', '.join(self.groupValues[index])
+                    else:
+                        values = ''
+                    ret +=  "  {0} ({2}): {1}\n".format(n, values, numValues)
 
-        for p in self.subPatterns:
-            ret += p.__str__()
+            for p in self.subPatterns:
+                ret += p.__str__()
 
         return (ret)
     __repr__ = __str__
