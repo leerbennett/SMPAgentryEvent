@@ -187,8 +187,8 @@ class EventPattern:
                         values = ''
                     ret +=  "  {0} ({2}): {1}\n".format(n, values, numValues)
 
-            for p in self.subPatterns:
-                ret += p.__str__()
+        for p in self.subPatterns:
+            ret += p.__str__()
 
         return (ret)
     __repr__ = __str__
